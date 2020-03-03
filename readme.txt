@@ -3,7 +3,7 @@ Creates a Lambda Function that will automatically create and destroy VPN Tunnel 
 
 
 ** PREREQUSITES
-	* You will need to create an IAM role with Full access to Cloudwatch. 
+	* You will need to create an IAM role with Full access to Cloudwatch, and the the right to list IAM account aliases.
 	* You will need to provide the ARN of the SNS topic you want to notify for Alarms,
 	  we use the same topic for Breaching and OK notifications.
 	* Install PowershellCore on your deployment system: https://github.com/PowerShell/PowerShell
@@ -21,7 +21,9 @@ New-AWSPowerShellLambdaPackage -ScriptPath .\VPN_alarm_manager.ps1 -OutputPackag
 
 ** PUBLISH THE LAMBDA DIRECTLY (be sure to update environment variables and IAM role as needed )
 
-Publish-AWSPowerShellLambda -Name VPN_Alarm_Manager -ScriptPath VPN_alarm_manager.ps1  -IAMRoleARN 'arn:aws:iam::039197104970:role/Lambda-CloudWatch-FullAccess' -Profile intapps -Region us-east-1 -EnvironmentVariable @{'alarm_prefix'='FRBINTERNALAPPS-NP';'alarm_desc_prefix'='FRB InternalApps (NonProd)';'action_arn'='arn:aws:sns:us-east-1:039197104970:smx-warning-alarm-triggered'}
+Publish-AWSPowerShellLambda -Name VPN_Alarm_Manager -ScriptPath VPN_alarm_manager.ps1  -IAMRoleARN 'arn:aws:iam::039197104970:role/Lambda-CloudWatch-FullAccess' -Profile intapps -Region us-east-1 -EnvironmentVariable @{'alarm_prefix'='FRBINTERNALAPPS-NP';'alarm_desc_prefix'='FRB InternalApps (NonProd)'; 'alarm_desc_suffix'='- Please contact the FRB CSC at 1-800-526-2011'; 'action_arn'='arn:aws:sns:us-east-1:039197104970:smx-warning-VPN-Tunnel-Alarm-Triggered'}
+
+** Set the following Environment Variables:
 
 ** Post Deployment Configuration
 

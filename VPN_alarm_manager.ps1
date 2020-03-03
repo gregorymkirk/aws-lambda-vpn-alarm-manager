@@ -18,13 +18,12 @@
 Function Main{
    
     #We shoudl move the frist three to to environment variables to make this reusable in other envs
-    $alarm_prefix= $env:alarm_prefix +"-VPN-Tunnel-Alarm_"
-    $alarm_desc_prefix = $env:alarm_desc_prefix + " VPN Tunnel"
+    $alarm_prefix= $env:alarm_prefix +"-VPN-Tunnel-Alarm"
+    $alarm_desc_prefix = $env:alarm_desc_prefix + " VPN Tunnel:"
     $ifdown_alarm_actions = $env:action_arn 
-
-    #$alarm_prefix='TH-NP-_'
-    #$alarm_desc_prefix = 'Transit Hub (NonProd)'
-    #$ifdown_alarm_actions = [' arn:aws:sns:us-east-1:039197104970:smx-warning-alarm-triggered']
+    $alarm_desc_suffix = $env:alarm_desc_suffix
+    $AWSAccount = (Get-STSCallerIdentity).Account
+    $AWSAcctAlias = Get-IAMAccountAlias
 
     $alarm_namespace = 'AWS/VPN'
 
@@ -79,10 +78,9 @@ Function Main{
 
 Function GetVPNTunnelMetrics {
     #Function retrieves the VPN Tunnel state metrics.
-
     try{
         $Filter = [Amazon.CloudWatch.Model.DimensionFilter]::new()
-        $Filter.Name = 'TunnelIpAddress'
+        $Filter.Name = 'VpnId'
         $metrics=Get-CWMetricList -Namespace "AWS/VPN" -MetricName 'TunnelState' -Dimension $Filter
     }
     catch {
@@ -120,8 +118,8 @@ Function RemoveAlarm{
 Function CreateAlarm {
     #Function to create a Cloudwatch Alarm
     param([PSObject]$metric)
-    $AlarmName = $alarm_prefix + $metric.Dimensions.Value 
-    $AlarmDesc = $alarm_desc_prefix + $metrics[0].Dimensions.Value
+    $AlarmName = "$alarm_prefix-$AWSAcctAlias-$AWSAccount-" + $metric.Dimensions.Value 
+    $AlarmDesc = "$alarm_desc_prefix-$AWSAcctAlias($AWSAccount)-" + $metric.Dimensions.Value + "$alarm_desc_suffix"
     if  ($metric.MetricName -eq 'TunnelState' ){
         #create a new metric alarm
         Write-Host "Creating Alarm for " $metric.MetricName ":" $metric.Dimensions.Value
