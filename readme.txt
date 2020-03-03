@@ -23,6 +23,7 @@ New-AWSPowerShellLambdaPackage -ScriptPath .\VPN_alarm_manager.ps1 -OutputPackag
 
 Publish-AWSPowerShellLambda -Name VPN_Alarm_Manager -ScriptPath VPN_alarm_manager.ps1  -IAMRoleARN 'arn:aws:iam::039197104970:role/Lambda-CloudWatch-FullAccess' -Profile intapps -Region us-east-1 -EnvironmentVariable @{'alarm_prefix'='FRBINTERNALAPPS-NP';'alarm_desc_prefix'='FRB InternalApps (NonProd)'; 'alarm_desc_suffix'='- Please contact the FRB CSC at 1-800-526-2011'; 'action_arn'='arn:aws:sns:us-east-1:039197104970:smx-warning-VPN-Tunnel-Alarm-Triggered'}
 
+
 ** Set the following Environment Variables:
 
 ** Post Deployment Configuration
